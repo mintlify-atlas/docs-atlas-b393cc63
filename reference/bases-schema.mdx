@@ -83,6 +83,18 @@ properties:
 
 Setting `displayName` does not affect the underlying property identifier used elsewhere in the file — `formula.days_until_due` must still be written as `formula.days_until_due` in `order:` and `summaries:` blocks.
 
+## The `this` Keyword
+
+The `this` keyword is a special reference that resolves to a file object depending on where the `.base` file is rendered:
+
+| Context | `this` refers to |
+|---------|-----------------|
+| Main content area | The `.base` file itself |
+| Embedded in a note (`![[MyBase.base]]`) | The file that embeds the base |
+| Sidebar | The active file in the main content area |
+
+This makes `this` useful for creating context-aware bases — for example, a base embedded in a project note can use `this` to automatically filter for notes that link back to that project, without hardcoding the project name.
+
 ## Summaries Configuration
 
 The `summaries:` top-level section lets you define custom summary formulas that can then be referenced by name in a view's `summaries:` map. Custom summary expressions receive a `values` list and can call any list function on it.

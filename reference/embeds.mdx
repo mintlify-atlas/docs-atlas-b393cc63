@@ -1,0 +1,96 @@
+---
+title: "Obsidian Embed Syntax: Notes, Images, Audio, PDF, and More"
+sidebarTitle: "Embeds"
+description: "Complete reference for Obsidian embed syntax including notes, headings, block IDs, images with dimensions, audio, PDF pages, Bases, and search queries."
+---
+
+Embeds let you render the contents of another file — or a specific portion of it — inline within the current note. The syntax is identical to a wikilink but prefixed with an exclamation mark: `![[Target]]`. Obsidian resolves the link at render time and displays the embedded content directly in reading view, making it easy to reuse and compose content across your vault.
+
+## Embed Notes
+
+Embed an entire note, a specific heading section, or a single block identified by its block ID.
+
+```markdown
+![[Note Name]]
+![[Note Name#Heading]]
+![[Note Name#^block-id]]
+```
+
+## Embed Images
+
+Embed a local image at its natural size, at an exact width-by-height, or scaled to a specific width while preserving its aspect ratio.
+
+```markdown
+![[image.png]]
+![[image.png|640x480]]    Width x Height
+![[image.png|300]]        Width only (maintains aspect ratio)
+```
+
+## External Images
+
+External images use standard Markdown image syntax. An optional width can be appended after the alt text using a pipe character.
+
+```markdown
+![Alt text](https://example.com/image.png)
+![Alt text|300](https://example.com/image.png)
+```
+
+## Embed Audio
+
+Local audio files are embedded as an inline audio player. Both MP3 and OGG formats are supported.
+
+```markdown
+![[audio.mp3]]
+![[audio.ogg]]
+```
+
+## Embed PDF
+
+PDF files can be embedded in their entirety or opened to a specific page. You can also constrain the height of the PDF viewer.
+
+```markdown
+![[document.pdf]]
+![[document.pdf#page=3]]
+![[document.pdf#height=400]]
+```
+
+## Embed Bases
+
+Bases files (`.base`) can be embedded whole or with a specific named view. This lets you surface structured data from a Base inline in any note.
+
+```markdown
+![[BaseFile.base]]
+![[BaseFile.base#View Name]]
+```
+
+## Embed Lists
+
+A specific list in a note can be embedded by referencing its block ID. The block ID is defined in the source note by adding a `^block-id` marker on the line immediately after the list.
+
+```markdown
+![[Note#^list-id]]
+```
+
+In the source note, define the block ID directly after the list:
+
+```markdown
+- Item 1
+- Item 2
+- Item 3
+
+^list-id
+```
+
+<Note>
+  Block IDs (`^block-id`) must be unique within the entire vault. If two notes share the same block ID, Obsidian may resolve the embed ambiguously. Use descriptive, note-specific identifiers to avoid collisions.
+</Note>
+
+## Embed Search Results
+
+A live search query can be embedded using a fenced code block with the `query` language tag. Obsidian evaluates the query and renders the matching results inline.
+
+````markdown
+```query
+tag:#project status:done
+```
+````

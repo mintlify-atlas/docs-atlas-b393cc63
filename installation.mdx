@@ -1,0 +1,111 @@
+---
+title: "Install Obsidian Agent Skills for Claude, Codex, or OpenCode"
+sidebarTitle: "Installation"
+description: "Add Obsidian Agent Skills to your AI coding assistant via marketplace, npx skills, or a manual clone. Works with Claude Code, Codex, and OpenCode."
+---
+
+Obsidian Agent Skills can be installed in three ways: through the Claude Code plugin marketplace, via the `npx skills` CLI tool, or by manually placing files in the correct location for your agent. All three methods result in the same outcome — skills are auto-discovered by your agent at startup, with no configuration files to edit and no prompts to write.
+
+<Tabs>
+  <Tab title="Marketplace">
+    The marketplace method is the fastest way to install for Claude Code users. Run the following two commands inside a Claude Code session:
+
+    ```bash
+    /plugin marketplace add kepano/obsidian-skills
+    /plugin install obsidian@obsidian-skills
+    ```
+
+    The first command registers the marketplace source and the second installs the `obsidian` plugin bundle. Claude Code will auto-discover the included skills on next startup.
+  </Tab>
+
+  <Tab title="npx skills">
+    If you have Node.js available, you can use the `npx skills` tool to install directly from the GitHub repository. Choose either SSH or HTTPS depending on your git setup:
+
+    <CodeGroup>
+      ```bash SSH
+      npx skills add git@github.com:kepano/obsidian-skills.git
+      ```
+
+      ```bash HTTPS
+      npx skills add https://github.com/kepano/obsidian-skills
+      ```
+    </CodeGroup>
+
+    The `npx skills` tool handles cloning and placement automatically, following the [Agent Skills specification](https://agentskills.io/specification) conventions for wherever your agent expects to find skill files.
+  </Tab>
+
+  <Tab title="Manual">
+    You can install the skills manually for any supported agent. Follow the steps for your agent below.
+
+    <Tabs>
+      <Tab title="Claude Code">
+        <Steps>
+          <Step title="Clone or download the repository">
+            ```bash
+            git clone https://github.com/kepano/obsidian-skills.git
+            ```
+          </Step>
+          <Step title="Copy contents to your vault's .claude folder">
+            Add the entire contents of the cloned repository to a `/.claude` folder at the root of your Obsidian vault (or whichever folder you are opening with Claude Code):
+
+            ```bash
+            cp -r obsidian-skills/. /path/to/your/vault/.claude/
+            ```
+          </Step>
+          <Step title="Restart Claude Code">
+            Claude Code will auto-discover the skills on next startup. No changes to any config file are needed.
+          </Step>
+        </Steps>
+
+        For more detail, see the [official Claude Agent Skills documentation](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+      </Tab>
+
+      <Tab title="Codex">
+        <Steps>
+          <Step title="Clone or download the repository">
+            ```bash
+            git clone https://github.com/kepano/obsidian-skills.git
+            ```
+          </Step>
+          <Step title="Copy the skills/ directory to your Codex skills path">
+            ```bash
+            cp -r obsidian-skills/skills/ ~/.codex/skills/
+            ```
+
+            The standard Codex skills path is `~/.codex/skills`. Refer to the [Agent Skills specification](https://agentskills.io/specification) if your setup uses a different path.
+          </Step>
+          <Step title="Restart Codex">
+            Codex will auto-discover all `SKILL.md` files in the skills directory on next startup.
+          </Step>
+        </Steps>
+      </Tab>
+
+      <Tab title="OpenCode">
+        <Warning>
+          Clone the **full repository** into `~/.opencode/skills/obsidian-skills/` — do **not** copy only the inner `skills/` subfolder. OpenCode requires the directory structure `~/.opencode/skills/obsidian-skills/skills/<skill-name>/SKILL.md` to discover skills correctly.
+        </Warning>
+
+        <Steps>
+          <Step title="Clone the full repository into the OpenCode skills directory">
+            ```bash
+            git clone https://github.com/kepano/obsidian-skills.git ~/.opencode/skills/obsidian-skills
+            ```
+
+            This places the skills at `~/.opencode/skills/obsidian-skills/skills/<skill-name>/SKILL.md`, which is the path OpenCode expects.
+          </Step>
+          <Step title="Restart OpenCode">
+            OpenCode auto-discovers all `SKILL.md` files under `~/.opencode/skills/`. No changes to `opencode.json` or any other config file are required. Skills become available immediately after restarting.
+          </Step>
+        </Steps>
+      </Tab>
+    </Tabs>
+  </Tab>
+</Tabs>
+
+## After Installation
+
+Once the skills are installed, your agent will automatically load the relevant skill whenever it detects a matching file type or user intent — for example, when you open a `.base` file or ask about Canvas nodes. There is nothing else to configure. The skills are written in plain Markdown and YAML, so you can inspect or customise any `SKILL.md` file at any time.
+
+<Note>
+  The `obsidian-cli` skill requires Obsidian to be running in the background. The Obsidian CLI communicates with the Obsidian app over a local connection, so the app must be open for CLI commands to work.
+</Note>

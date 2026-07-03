@@ -1,0 +1,60 @@
+---
+title: "defuddle: Extract Clean Markdown from Web Pages"
+sidebarTitle: "Defuddle"
+description: "Teach your agent to use the Defuddle CLI to strip navigation, ads, and clutter from web pages, outputting clean Markdown that reduces token usage."
+---
+
+The `defuddle` skill teaches AI coding assistants to use the Defuddle CLI to extract clean, readable content from web pages. Defuddle strips navigation bars, sidebars, ads, cookie banners, and other clutter from HTML pages, returning only the main article content. The output is significantly smaller than raw HTML, which reduces token usage when passing web content to a language model. Load this skill whenever the user provides a URL to read or analyze — for online documentation, articles, blog posts, or any standard web page. Prefer Defuddle over WebFetch for HTML pages; use WebFetch directly only for URLs that already return Markdown or plain text.
+
+## Installation
+
+If Defuddle is not already installed, install it globally with npm:
+
+```bash
+npm install -g defuddle
+```
+
+## Usage
+
+### Always use `--md` for Markdown output
+
+The primary usage pattern. Fetches the URL, strips clutter, and outputs clean Markdown to stdout:
+
+```bash
+defuddle parse <url> --md
+```
+
+### Save to file
+
+Redirect the Markdown output directly to a file with `-o`:
+
+```bash
+defuddle parse <url> --md -o content.md
+```
+
+### Extract metadata
+
+Extract a specific metadata property from the page instead of the full content:
+
+```bash
+defuddle parse <url> -p title
+defuddle parse <url> -p description
+defuddle parse <url> -p domain
+```
+
+## Output Formats
+
+| Flag | Format |
+|------|--------|
+| `--md` | Markdown (default choice) |
+| `--json` | JSON with both HTML and Markdown |
+| (none) | HTML |
+| `-p <name>` | Specific metadata property |
+
+<Tip>
+  Prefer Defuddle over WebFetch for standard web pages — HTML articles, documentation sites, and blogs. Defuddle removes clutter and nav elements that WebFetch would include, producing a much smaller and cleaner result that uses fewer tokens.
+</Tip>
+
+<Note>
+  Do **not** use Defuddle for URLs ending in `.md`. Those URLs already return Markdown — use WebFetch directly to avoid unnecessary processing.
+</Note>

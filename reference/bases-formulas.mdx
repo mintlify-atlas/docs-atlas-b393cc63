@@ -1,0 +1,195 @@
+---
+title: "Obsidian Bases Formula Syntax: Computed Properties and Expressions"
+sidebarTitle: "Bases Formulas"
+description: "Reference for Obsidian Bases formula syntax including arithmetic, conditional logic, date math, Duration type behavior, and common formula patterns."
+---
+
+Formulas are computed properties defined in the `formulas:` section of a `.base` file. Each formula is a named expression that Obsidian evaluates for every note in the base. Once defined, a formula is referenced anywhere a property identifier is accepted — in `order:`, `properties:`, and `summaries:` — using the `formula.name` prefix. Formulas make it possible to derive new values (status icons, countdown timers, word estimates, formatted strings) without modifying the underlying notes.
+
+## Defining Formulas
+
+Each entry in `formulas:` maps a name to an expression string. Names must be valid YAML keys (no spaces; use underscores). Expressions follow the same syntax as filter expressions and have access to all note properties, file metadata, and built-in functions.
+
+```yaml
+formulas:
+  # Simple arithmetic
+  total: "price * quantity"
+
+  # Conditional logic
+  status_icon: 'if(done, "✅", "⏳")'
+
+  # String formatting
+  formatted_price: 'if(price, price.toFixed(2) + " dollars")'
+
+  # Date formatting
+  created: 'file.ctime.format("YYYY-MM-DD")'
+
+  # Calculate days since created (use .days for Duration)
+  days_old: '(now() - file.ctime).days'
+
+  # Calculate days until due date
+  days_until_due: 'if(due_date, (date(due_date) - today()).days, "")'
+```
+
+## Using Formulas in Views
+
+After defining a formula, reference it with the `formula.` prefix in `order:` and `properties:` blocks. The prefix tells Bases to look up the formula rather than a frontmatter property.
+
+```yaml
+formulas:
+  days_until_due: 'if(due, (date(due) - today()).days, "")'
+  priority_label: 'if(priority == 1, "🔴 High", if(priority == 2, "🟡 Medium", "🟢 Low"))'
+
+properties:
+  formula.days_until_due:
+    displayName: "Days Until Due"
+  formula.priority_label:
+    displayName: Priority
+
+views:
+  - type: table
+    name: "Active Tasks"
+    order:
+      - file.name
+      - formula.priority_label
+      - formula.days_until_due
+    summaries:
+      formula.days_until_due: Average
+```
+
+## Duration Type
+
+<Warning>
+  Subtracting two dates does **not** return a number — it returns a **Duration** type. Calling number functions like `.round()`, `.floor()`, or `.ceil()` directly on a Duration will cause an error. You must access a numeric field on the Duration first, then apply number functions to that field.
+</Warning>
+
+When you subtract two dates (e.g. `now() - file.ctime` or `date(due) - today()`), the result is a Duration object with the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `duration.days` | Number | Total days in the duration |
+| `duration.hours` | Number | Total hours in the duration |
+| `duration.minutes` | Number | Total minutes in the duration |
+| `duration.seconds` | Number | Total seconds in the duration |
+| `duration.milliseconds` | Number | Total milliseconds in the duration |
+
+**Correct usage — access a field first:**
+
+```yaml
+formulas:
+  # ✅ Returns a number (days)
+  days_old: '(now() - file.ctime).days'
+
+  # ✅ Returns a number (hours), then rounds it
+  hours_old: '(now() - file.ctime).hours.round(0)'
+
+  # ✅ Rounded days
+  days_until: '(date(due_date) - today()).days.round(0)'
+```
+
+**Wrong usage — treating Duration as a number:**
+
+```yaml
+formulas:
+  # ❌ WRONG — Duration does not support .round() directly
+  bad_days: '(now() - file.ctime).round(0)'
+
+  # ❌ WRONG — Duration does not support division
+  bad_calc: '((date(due) - today()) / 86400000).round(0)'
+```
+
+## Date Arithmetic
+
+Formulas support adding and subtracting durations from dates using a string shorthand for duration units.
+
+**Duration unit abbreviations:**
+
+| Unit | Abbreviations |
+|------|--------------|
+| Years | `y`, `year`, `years` |
+| Months | `M`, `month`, `months` |
+| Weeks | `w`, `week`, `weeks` |
+| Days | `d`, `day`, `days` |
+| Hours | `h`, `hour`, `hours` |
+| Minutes | `m`, `minute`, `minutes` |
+| Seconds | `s`, `second`, `seconds` |
+
+```yaml
+formulas:
+  # Add a duration to a date
+  tomorrow: 'now() + "1 day"'
+  next_week: 'today() + "7d"'
+  next_month: 'today() + "1M"'
+
+  # Subtract a duration from a date
+  yesterday: 'now() - "1 day"'
+
+  # Subtract two dates → returns Duration
+  age: 'now() - file.ctime'
+
+  # Extract numeric value from Duration
+  age_days: '(now() - file.ctime).days'
+  age_hours: '(now() - file.ctime).hours'
+```
+
+## YAML Quoting Rules
+
+Because formula expressions often contain double-quoted string literals, YAML quoting requires care. The general rule is:
+
+- **Use single quotes** around formulas that contain double quotes: `'if(done, "Yes", "No")'`
+- **Use double quotes** for simple expressions with no inner quotes: `"price * quantity"`
+- Never nest double quotes inside double quotes without escaping
+
+```yaml
+formulas:
+  # ✅ CORRECT — single quotes wrap the expression containing double quotes
+  label: 'if(done, "Yes", "No")'
+
+  # ✅ CORRECT — double quotes are fine when no inner quotes are needed
+  total: "price * quantity"
+
+  # ❌ WRONG — double quotes inside double quotes breaks YAML parsing
+  bad_label: "if(done, "Yes", "No")"
+```
+
+Strings that contain colons, curly braces, square brackets, or other YAML special characters must also be quoted. When in doubt, wrap the entire formula value in single quotes.
+
+## Common Formula Patterns
+
+The following patterns cover the most frequent formula use cases.
+
+**Status icon from a property value:**
+
+```yaml
+formulas:
+  status_icon: 'if(status == "reading", "📖", if(status == "done", "✅", "📚"))'
+```
+
+**Days until a due date (with null guard):**
+
+```yaml
+formulas:
+  days_until_due: 'if(due_date, (date(due_date) - today()).days, "")'
+```
+
+**Overdue flag:**
+
+```yaml
+formulas:
+  is_overdue: 'if(due_date, date(due_date) < today() && status != "done", false)'
+```
+
+**Year extracted from a date property:**
+
+```yaml
+formulas:
+  year_read: 'if(finished_date, date(finished_date).year, "")'
+```
+
+<Warning>
+  **Common formula errors to avoid:**
+
+  - **Duration without field access** — `(now() - file.ctime).round(0)` will error. Use `(now() - file.ctime).days.round(0)` instead.
+  - **Missing null checks** — `(date(due_date) - today()).days` will crash if `due_date` is empty on some notes. Guard with `if(due_date, ..., "")`.
+  - **Referencing undefined formulas** — Every `formula.X` used in `order:`, `properties:`, or `summaries:` must have a matching entry in the `formulas:` block. A missing definition fails silently.
+</Warning>

@@ -1,0 +1,85 @@
+---
+title: "JSON Canvas Edges: Connecting Nodes with Arrows and Labels"
+sidebarTitle: "Canvas Edges"
+description: "Complete reference for JSON Canvas edge attributes — fromNode, toNode, side anchors, arrow ends, labels, and colors — with a JSON example."
+---
+
+Edges are the connections between nodes in a JSON Canvas file. They are stored in the top-level `edges` array and reference two existing nodes by their `id` values: a source (`fromNode`) and a target (`toNode`). Every edge must have a unique `id`, and the two node references are required. All other attributes — side anchors, arrow ends, color, and label — are optional and control the visual appearance of the connection.
+
+## Edge Attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `id` | Yes | string | — | Unique identifier |
+| `fromNode` | Yes | string | — | Source node ID |
+| `fromSide` | No | string | — | `top`, `right`, `bottom`, or `left` |
+| `fromEnd` | No | string | `none` | `none` or `arrow` |
+| `toNode` | Yes | string | — | Target node ID |
+| `toSide` | No | string | — | `top`, `right`, `bottom`, or `left` |
+| `toEnd` | No | string | `arrow` | `none` or `arrow` |
+| `color` | No | canvasColor | — | Line color |
+| `label` | No | string | — | Text label on the edge |
+
+## Side Anchors
+
+The `fromSide` and `toSide` attributes control which face of a node an edge attaches to. When omitted, the application determines the closest anchor point automatically.
+
+| Value | Description |
+|-------|-------------|
+| `top` | Attaches to the top edge of the node |
+| `right` | Attaches to the right edge of the node |
+| `bottom` | Attaches to the bottom edge of the node |
+| `left` | Attaches to the left edge of the node |
+
+Setting explicit sides is recommended in dense layouts or when directionality matters (for example, left-to-right flowcharts using `fromSide: "right"` and `toSide: "left"`).
+
+## Arrow Ends
+
+The `fromEnd` and `toEnd` attributes control whether an arrowhead appears at each end of the edge.
+
+| Attribute | Default | Possible Values | Description |
+|-----------|---------|-----------------|-------------|
+| `fromEnd` | `none` | `none`, `arrow` | Arrowhead at the source end |
+| `toEnd` | `arrow` | `none`, `arrow` | Arrowhead at the target end |
+
+By default, edges are **directional**: `toEnd` defaults to `arrow` so the edge points toward the target node, while `fromEnd` defaults to `none`. Set both to `arrow` for bidirectional edges, or set `toEnd` to `none` for an undirected line.
+
+## JSON Example
+
+```json
+{
+  "id": "0123456789abcdef",
+  "fromNode": "6f0ad84f44ce9c17",
+  "fromSide": "right",
+  "toNode": "a1b2c3d4e5f67890",
+  "toSide": "left",
+  "toEnd": "arrow",
+  "label": "leads to"
+}
+```
+
+## Validation
+
+<Warning>
+Every `fromNode` and `toNode` value must reference an **existing node ID** in the `nodes` array. Dangling edge references — edges that point to a node ID that does not exist — produce an invalid canvas file. Always verify that both referenced IDs are present after creating or editing edges.
+</Warning>
+
+## Workflow: Connecting Two Nodes
+
+<Steps>
+  <Step title="Identify the source and target node IDs">
+    Read the existing canvas and locate the `id` of the node you want to connect from and the node you want to connect to.
+  </Step>
+  <Step title="Generate a unique edge ID">
+    Create a new 16-character lowercase hex string that does not collide with any existing node or edge ID in the file.
+  </Step>
+  <Step title="Set fromNode and toNode">
+    Assign the source node's ID to `fromNode` and the target node's ID to `toNode`.
+  </Step>
+  <Step title="Optionally set sides and label">
+    Add `fromSide` and `toSide` to anchor the edge to specific faces of each node. Add a `label` string for descriptive text displayed along the edge.
+  </Step>
+  <Step title="Validate">
+    Confirm that both `fromNode` and `toNode` reference node IDs that exist in the `nodes` array, and that the new edge ID is unique across the entire file.
+  </Step>
+</Steps>

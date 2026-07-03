@@ -1,0 +1,322 @@
+---
+title: "Obsidian Bases Schema: .base File Structure Reference"
+sidebarTitle: "Bases Schema"
+description: "Complete schema reference for Obsidian .base files, covering top-level keys: filters, formulas, properties, summaries, views, and their YAML structure."
+---
+
+A `.base` file is a YAML file with the `.base` extension that gives database-like views over the notes in your Obsidian vault. Each base file selects a set of notes using filters, optionally computes new values with formulas, and renders those notes in one or more views (table, cards, list, or map). Because the entire file is YAML, standard YAML rules apply — quoting, indentation, and structure all matter.
+
+## Top-Level Schema
+
+Every `.base` file is built from up to five top-level keys. All keys are optional, but a useful base will have at least `filters` and `views`.
+
+```yaml
+# Global filters apply to ALL views in the base
+filters:
+  # Can be a single filter string
+  # OR a recursive filter object with exactly ONE key: and, or, or not
+  and:
+    - 'status == "active"'
+    - not:
+        - 'file.hasTag("archived")'
+
+# Define formula properties that can be used across all views
+formulas:
+  formula_name: 'expression'
+
+# Configure display names and settings for properties
+properties:
+  property_name:
+    displayName: "Display Name"
+  formula.formula_name:
+    displayName: "Formula Display Name"
+  file.ext:
+    displayName: "Extension"
+
+# Define custom summary formulas
+summaries:
+  custom_summary_name: 'values.mean().round(3)'
+
+# Define one or more views
+views:
+  - type: table | cards | list | map
+    name: "View Name"
+    limit: 10                    # Optional: limit results
+    groupBy:                     # Optional: group results
+      property: property_name
+      direction: ASC | DESC
+    filters:                     # View-specific filters follow the same rules
+      and:
+        - 'status == "active"'
+    order:                       # Properties to display in order
+      - file.name
+      - property_name
+      - formula.formula_name
+    summaries:                   # Map properties to summary formulas
+      property_name: Average
+```
+
+## Properties Configuration
+
+The `properties:` section controls how property columns are labeled in a view. You can configure display names for three types of properties: **note properties** (from frontmatter), **formula properties** (defined in `formulas:`), and **file properties** (built-in metadata like `file.ext`).
+
+Each entry uses the property's identifier as the key, and accepts a `displayName` field:
+
+```yaml
+properties:
+  # Note property from frontmatter
+  status:
+    displayName: "Status"
+
+  # Formula property — prefix with "formula."
+  formula.days_until_due:
+    displayName: "Days Until Due"
+
+  # File metadata property — prefix with "file."
+  file.ext:
+    displayName: "Extension"
+
+  # Set an empty displayName to hide the column header
+  formula.status_icon:
+    displayName: ""
+```
+
+Setting `displayName` does not affect the underlying property identifier used elsewhere in the file — `formula.days_until_due` must still be written as `formula.days_until_due` in `order:` and `summaries:` blocks.
+
+## Summaries Configuration
+
+The `summaries:` top-level section lets you define custom summary formulas that can then be referenced by name in a view's `summaries:` map. Custom summary expressions receive a `values` list and can call any list function on it.
+
+```yaml
+summaries:
+  custom_summary_name: 'values.mean().round(3)'
+```
+
+Inside a view, map any property to either a built-in summary name or a custom one:
+
+```yaml
+views:
+  - type: table
+    name: "Stats"
+    order:
+      - price
+      - rating
+    summaries:
+      price: Sum
+      rating: custom_summary_name
+```
+
+**Built-in summary formulas:**
+
+| Name | Input Type | Description |
+|------|------------|-------------|
+| `Average` | Number | Mathematical mean |
+| `Min` | Number | Smallest number |
+| `Max` | Number | Largest number |
+| `Sum` | Number | Sum of all numbers |
+| `Range` | Number | Max − Min |
+| `Median` | Number | Mathematical median |
+| `Stddev` | Number | Standard deviation |
+| `Earliest` | Date | Earliest date |
+| `Latest` | Date | Latest date |
+| `Range` | Date | Latest − Earliest |
+| `Checked` | Boolean | Count of true values |
+| `Unchecked` | Boolean | Count of false values |
+| `Empty` | Any | Count of empty values |
+| `Filled` | Any | Count of non-empty values |
+| `Unique` | Any | Count of unique values |
+
+## View Types
+
+Each entry in the `views:` list must have a `type` field. The four supported types are `table`, `cards`, `list`, and `map`.
+
+<Tabs>
+  <Tab title="Table">
+    The `table` type renders notes as rows in a spreadsheet-like grid. Use `order:` to specify which columns appear and `summaries:` to show aggregate values in the footer row.
+
+    ```yaml
+    views:
+      - type: table
+        name: "My Table"
+        order:
+          - file.name
+          - status
+          - due_date
+        summaries:
+          price: Sum
+          count: Average
+    ```
+  </Tab>
+  <Tab title="Cards">
+    The `cards` type displays notes as a visual card gallery. List image properties first in `order:` to use them as card covers.
+
+    ```yaml
+    views:
+      - type: cards
+        name: "Gallery"
+        order:
+          - file.name
+          - cover_image
+          - description
+    ```
+  </Tab>
+  <Tab title="List">
+    The `list` type shows a simple vertical list of notes with selected properties displayed inline.
+
+    ```yaml
+    views:
+      - type: list
+        name: "Simple List"
+        order:
+          - file.name
+          - status
+    ```
+  </Tab>
+  <Tab title="Map">
+    The `map` type plots notes on an interactive map. It requires latitude and longitude properties on your notes and the Maps community plugin.
+
+    ```yaml
+    views:
+      - type: map
+        name: "Locations"
+        # Map-specific settings for lat/lng properties
+    ```
+  </Tab>
+</Tabs>
+
+## Complete Examples
+
+The following three examples demonstrate complete, working `.base` files that cover common use cases.
+
+### Task Tracker Base
+
+A task management base that groups active tasks by status, shows priority labels and days until due, and separates completed tasks into their own view.
+
+```yaml
+filters:
+  and:
+    - file.hasTag("task")
+    - 'file.ext == "md"'
+
+formulas:
+  days_until_due: 'if(due, (date(due) - today()).days, "")'
+  is_overdue: 'if(due, date(due) < today() && status != "done", false)'
+  priority_label: 'if(priority == 1, "🔴 High", if(priority == 2, "🟡 Medium", "🟢 Low"))'
+
+properties:
+  status:
+    displayName: Status
+  formula.days_until_due:
+    displayName: "Days Until Due"
+  formula.priority_label:
+    displayName: Priority
+
+views:
+  - type: table
+    name: "Active Tasks"
+    filters:
+      and:
+        - 'status != "done"'
+    order:
+      - file.name
+      - status
+      - formula.priority_label
+      - due
+      - formula.days_until_due
+    groupBy:
+      property: status
+      direction: ASC
+    summaries:
+      formula.days_until_due: Average
+
+  - type: table
+    name: "Completed"
+    filters:
+      and:
+        - 'status == "done"'
+    order:
+      - file.name
+      - completed_date
+```
+
+### Reading List Base
+
+A reading tracker that covers both books and articles, shows estimated reading time, and separates the to-read queue from the card gallery.
+
+```yaml
+filters:
+  or:
+    - file.hasTag("book")
+    - file.hasTag("article")
+
+formulas:
+  reading_time: 'if(pages, (pages * 2).toString() + " min", "")'
+  status_icon: 'if(status == "reading", "📖", if(status == "done", "✅", "📚"))'
+  year_read: 'if(finished_date, date(finished_date).year, "")'
+
+properties:
+  author:
+    displayName: Author
+  formula.status_icon:
+    displayName: ""
+  formula.reading_time:
+    displayName: "Est. Time"
+
+views:
+  - type: cards
+    name: "Library"
+    order:
+      - cover
+      - file.name
+      - author
+      - formula.status_icon
+    filters:
+      not:
+        - 'status == "dropped"'
+
+  - type: table
+    name: "Reading List"
+    filters:
+      and:
+        - 'status == "to-read"'
+    order:
+      - file.name
+      - author
+      - pages
+      - formula.reading_time
+```
+
+### Daily Notes Index
+
+An index of daily notes that uses a regex filter to match only date-named files, estimates word count from file size, and shows the day of the week.
+
+```yaml
+filters:
+  and:
+    - file.inFolder("Daily Notes")
+    - '/^\d{4}-\d{2}-\d{2}$/.matches(file.basename)'
+
+formulas:
+  word_estimate: '(file.size / 5).round(0)'
+  day_of_week: 'date(file.basename).format("dddd")'
+
+properties:
+  formula.day_of_week:
+    displayName: "Day"
+  formula.word_estimate:
+    displayName: "~Words"
+
+views:
+  - type: table
+    name: "Recent Notes"
+    limit: 30
+    order:
+      - file.name
+      - formula.day_of_week
+      - formula.word_estimate
+      - file.mtime
+```
+
+<Note>
+  Base files must be valid YAML with no syntax errors. Strings that contain special characters (`:`, `{`, `}`, `[`, `]`, `#`, `|`, `>`, `!`, etc.) must be quoted. Formula expressions that contain double quotes should be wrapped in single quotes, e.g. `'if(done, "Yes", "No")'`. Always validate the file opens correctly in Obsidian after editing.
+</Note>

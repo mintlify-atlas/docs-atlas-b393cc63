@@ -1,0 +1,80 @@
+---
+title: "Obsidian Callout Types: All Supported Callout Syntax"
+sidebarTitle: "Callouts"
+description: "Complete reference for Obsidian callout syntax including all 13 built-in types with aliases, foldable callouts, nested callouts, and custom CSS callouts."
+---
+
+Callouts are a way to highlight important information inside a note using a visually distinct block. They use the `> [!type]` syntax — a blockquote prefix followed by a type name in square brackets — and Obsidian renders them with a colour-coded icon and header. Callouts are ideal for notes, warnings, tips, and any content that should stand apart from the main body of a document.
+
+## Basic Callout Syntax
+
+A callout can appear in three forms: with the default title derived from the type, with a custom title, or with a title and no body content.
+
+```markdown
+> [!note]
+> This is a note callout.
+
+> [!info] Custom Title
+> This callout has a custom title.
+
+> [!tip] Title Only
+```
+
+## Foldable Callouts
+
+Add `-` after the type to collapse a callout by default, or `+` to keep it expanded while still making it collapsible.
+
+```markdown
+> [!faq]- Collapsed by default
+> This content is hidden until expanded.
+
+> [!faq]+ Expanded by default
+> This content is visible but can be collapsed.
+```
+
+## Nested Callouts
+
+Callouts can be nested inside one another by adding an additional `>` level for each inner callout.
+
+```markdown
+> [!question] Outer callout
+> > [!note] Inner callout
+> > Nested content
+```
+
+## Callout Types Reference
+
+Obsidian ships with 13 built-in callout types. Each type has a distinct colour and icon, and many accept aliases that behave identically to the primary type name.
+
+<Tip>
+  Callout type names are case-insensitive — `[!NOTE]`, `[!Note]`, and `[!note]` all render the same way. Aliases work identically to the primary type name and can be used interchangeably.
+</Tip>
+
+| Type | Aliases | Color / Icon |
+|---|---|---|
+| `note` | — | Blue, pencil |
+| `abstract` | `summary`, `tldr` | Teal, clipboard |
+| `info` | — | Blue, info |
+| `todo` | — | Blue, checkbox |
+| `tip` | `hint`, `important` | Cyan, flame |
+| `success` | `check`, `done` | Green, checkmark |
+| `question` | `help`, `faq` | Yellow, question mark |
+| `warning` | `caution`, `attention` | Orange, warning |
+| `failure` | `fail`, `missing` | Red, X |
+| `danger` | `error` | Red, zap |
+| `bug` | — | Red, bug |
+| `example` | — | Purple, list |
+| `quote` | `cite` | Gray, quote |
+
+## Custom Callouts (CSS)
+
+You can define custom callout types using a CSS snippet. Set the `--callout-color` variable as an RGB triplet and `--callout-icon` to any Lucide icon name.
+
+```css
+.callout[data-callout="custom-type"] {
+  --callout-color: 255, 0, 0;
+  --callout-icon: lucide-alert-circle;
+}
+```
+
+Place this CSS in a file inside your vault's `.obsidian/snippets/` folder and enable it under **Settings → Appearance → CSS snippets**.

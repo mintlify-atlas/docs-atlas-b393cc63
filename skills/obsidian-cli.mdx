@@ -1,0 +1,127 @@
+---
+title: "obsidian-cli: Control Obsidian Vaults from the Command Line"
+sidebarTitle: "Obsidian CLI"
+description: "Teach your agent to use the Obsidian CLI for vault read/write, task management, property editing, and plugin development workflows."
+---
+
+The `obsidian-cli` skill teaches AI coding assistants to interact with a running Obsidian instance using the `obsidian` command-line tool. The CLI can read and write notes, search vault content, manage tasks, edit frontmatter properties, and support a full plugin and theme development cycle — including reloading plugins, capturing errors, taking screenshots, and inspecting the DOM. Load this skill when the user asks to interact with their Obsidian vault, manage notes from the terminal, or develop and debug Obsidian plugins and themes.
+
+<Note>
+  Obsidian must be open and running for all CLI commands to work. The CLI communicates with the active Obsidian instance; commands will fail if the application is not running.
+</Note>
+
+## Syntax
+
+**Parameters** take a value with `=`. Quote values that contain spaces:
+
+```bash
+obsidian create name="My Note" content="Hello world"
+```
+
+**Flags** are boolean switches with no value:
+
+```bash
+obsidian create name="My Note" silent overwrite
+```
+
+For multiline content, use `\n` for newline and `\t` for tab within the content string.
+
+## File and Vault Targeting
+
+Many commands accept `file` or `path` to target a specific note. Without either, the currently active file is used.
+
+- `file=<name>` — resolves like a wikilink (name only, no path or extension needed)
+- `path=<path>` — exact path from vault root, e.g. `folder/note.md`
+
+Commands target the most recently focused vault by default. Use `vault=<name>` as the first parameter to target a specific vault:
+
+```bash
+obsidian vault="My Vault" search query="test"
+```
+
+## Common Commands
+
+The following patterns cover the most frequent vault operations:
+
+```bash
+obsidian read file="My Note"
+obsidian create name="New Note" content="# Hello" template="Template" silent
+obsidian append file="My Note" content="New line"
+obsidian search query="search term" limit=10
+obsidian daily:read
+obsidian daily:append content="- [ ] New task"
+obsidian property:set name="status" value="done" file="My Note"
+obsidian tasks daily todo
+obsidian tags sort=count counts
+obsidian backlinks file="My Note"
+```
+
+<Tip>
+  Use `--copy` on any command to copy the output directly to the clipboard instead of printing it to stdout.
+</Tip>
+
+<Tip>
+  Use the `silent` flag to prevent a note from opening in Obsidian when it is created or modified. Use `total` on list commands to get a count of results instead of the full list.
+</Tip>
+
+Run `obsidian help` to see all available commands — this is always up to date. Full documentation: https://help.obsidian.md/cli
+
+## Plugin Development
+
+After making code changes to a plugin or theme, follow this develop/test cycle to pick up changes and verify them in the running Obsidian instance.
+
+<Steps>
+  <Step title="Reload the plugin">
+    Reload the plugin to pick up your latest code changes:
+
+    ```bash
+    obsidian plugin:reload id=my-plugin
+    ```
+  </Step>
+  <Step title="Check for errors">
+    Inspect for runtime errors. If errors appear, fix them and repeat from step 1:
+
+    ```bash
+    obsidian dev:errors
+    ```
+  </Step>
+  <Step title="Verify visually">
+    Take a screenshot or inspect the DOM to confirm the UI looks correct:
+
+    ```bash
+    obsidian dev:screenshot path=screenshot.png
+    obsidian dev:dom selector=".workspace-leaf" text
+    ```
+  </Step>
+  <Step title="Check console output">
+    Review console output for warnings or unexpected logs:
+
+    ```bash
+    obsidian dev:console level=error
+    ```
+  </Step>
+</Steps>
+
+## Additional Developer Commands
+
+Run JavaScript directly in the Obsidian app context:
+
+```bash
+obsidian eval code="app.vault.getFiles().length"
+```
+
+Inspect a CSS property on a DOM element:
+
+```bash
+obsidian dev:css selector=".workspace-leaf" prop=background-color
+```
+
+Toggle mobile emulation on or off:
+
+```bash
+obsidian dev:mobile on
+```
+
+<Note>
+  Run `obsidian help` to see all available developer commands, including CDP (Chrome DevTools Protocol) controls and debugger commands.
+</Note>

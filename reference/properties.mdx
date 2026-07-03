@@ -1,0 +1,89 @@
+---
+title: "Obsidian Properties: Frontmatter Types and Syntax"
+sidebarTitle: "Properties"
+description: "Reference for Obsidian YAML frontmatter properties including all property types, default properties (tags, aliases, cssclasses), and tag syntax rules."
+---
+
+Properties are structured metadata stored as YAML frontmatter at the very top of a note, enclosed between triple-dash delimiters (`---`). Obsidian reads these key-value pairs and surfaces them in the Properties panel, the file search, Dataview queries, and other contexts. They are the primary way to attach typed data — dates, numbers, booleans, lists, and links — to any note in your vault.
+
+## Frontmatter Example
+
+The following example demonstrates the full range of property types in a single note:
+
+```yaml
+---
+title: My Note Title
+date: 2024-01-15
+tags:
+  - project
+  - important
+aliases:
+  - My Note
+  - Alternative Name
+cssclasses:
+  - custom-class
+status: in-progress
+rating: 4.5
+completed: false
+due: 2024-02-01T14:30:00
+---
+```
+
+## Property Types
+
+Obsidian supports seven property types. The type is inferred from the YAML value unless explicitly set in the Properties panel.
+
+| Type | Example |
+|---|---|
+| Text | `title: My Title` |
+| Number | `rating: 4.5` |
+| Checkbox | `completed: true` |
+| Date | `date: 2024-01-15` |
+| Date & Time | `due: 2024-01-15T14:30:00` |
+| List | `tags: [one, two]` or YAML list |
+| Links | `related: "[[Other Note]]"` |
+
+## Default Properties
+
+Obsidian treats three property keys as special built-ins with dedicated behaviour across the application.
+
+<Tip>
+  `tags` and `aliases` are tracked by Obsidian's core indexer across file renames. Tags appear in graph view filters and the tag pane; aliases are offered as suggestions when you create a wikilink, letting you link to a note by any of its alternative names.
+</Tip>
+
+<CardGroup cols={3}>
+  <Card title="tags">
+    Assigns one or more tags to the note. Tags defined here are fully equivalent to inline `#tags` and appear in the tag pane, graph view filters, and search.
+  </Card>
+  <Card title="aliases">
+    Provides alternative names for the note. When you type a wikilink, Obsidian suggests aliases alongside the filename, and the link resolves correctly to the original note.
+  </Card>
+  <Card title="cssclasses">
+    Applies one or more CSS class names to the note's container element in reading and editing view. Use this to target specific notes with custom CSS snippets.
+  </Card>
+</CardGroup>
+
+## Tag Syntax
+
+Tags can be written inline anywhere in the body of a note using a `#` prefix, or listed in the `tags` frontmatter property.
+
+**Inline tags:**
+
+```markdown
+#tag
+#nested/tag
+#tag-with-dashes
+#tag_with_underscores
+```
+
+**Frontmatter tags:**
+
+```yaml
+---
+tags:
+  - tag1
+  - nested/tag2
+---
+```
+
+Valid tag characters are: letters (any language), numbers (numbers cannot be the first character), underscores `_`, hyphens `-`, and forward slashes `/` for nesting. A tag must contain at least one non-numeric character.

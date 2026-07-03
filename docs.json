@@ -1,72 +1,78 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Agent Skills",
+  "theme": "willow",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#7c7c7c",
+    "light": "#050505",
+    "dark": "#bdbdbd"
   },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
+  "favicon": "https://media.brand.dev/3909aec7-09de-4302-b812-d087be037759.png",
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "type": "github",
+      "href": "https://github.com/kepano/obsidian-skills"
     }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/kepano/obsidian-skills"
     }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              "installation"
+            ]
+          },
+          {
+            "group": "Skills",
+            "pages": [
+              "skills/obsidian-markdown",
+              "skills/obsidian-bases",
+              "skills/obsidian-cli",
+              "skills/json-canvas",
+              "skills/defuddle"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Obsidian Markdown",
+            "pages": [
+              "reference/callouts",
+              "reference/embeds",
+              "reference/properties"
+            ]
+          },
+          {
+            "group": "Obsidian Bases",
+            "pages": [
+              "reference/bases-schema",
+              "reference/bases-filters",
+              "reference/bases-formulas",
+              "reference/bases-functions"
+            ]
+          },
+          {
+            "group": "JSON Canvas",
+            "pages": [
+              "reference/canvas-nodes",
+              "reference/canvas-edges",
+              "reference/canvas-examples"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

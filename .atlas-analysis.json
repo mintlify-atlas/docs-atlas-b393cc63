@@ -1,0 +1,87 @@
+{
+  "projectType": "general",
+  "projectName": "Obsidian Agent Skills",
+  "projectDescription": "A collection of agent skills that teach AI coding assistants (Claude Code, Codex, OpenCode) to create and edit Obsidian vault files including Obsidian Flavored Markdown, Bases, JSON Canvas, and CLI interactions.",
+  "theme": "willow",
+  "primaryColor": "#7c7c7c",
+  "lightColor": "#050505",
+  "darkColor": "#bdbdbd",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              "installation"
+            ]
+          },
+          {
+            "group": "Skills",
+            "pages": [
+              "skills/obsidian-markdown",
+              "skills/obsidian-bases",
+              "skills/obsidian-cli",
+              "skills/json-canvas",
+              "skills/defuddle"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Obsidian Markdown",
+            "pages": [
+              "reference/callouts",
+              "reference/embeds",
+              "reference/properties"
+            ]
+          },
+          {
+            "group": "Obsidian Bases",
+            "pages": [
+              "reference/bases-schema",
+              "reference/bases-filters",
+              "reference/bases-formulas",
+              "reference/bases-functions"
+            ]
+          },
+          {
+            "group": "JSON Canvas",
+            "pages": [
+              "reference/canvas-nodes",
+              "reference/canvas-edges",
+              "reference/canvas-examples"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Obsidian Flavored Markdown authoring with wikilinks, callouts, embeds, and properties",
+    "Obsidian Bases (.base) creation with table/cards/list/map views, filters, and formulas",
+    "JSON Canvas (.canvas) authoring with nodes, edges, groups, and connections",
+    "Obsidian CLI integration for vault read/write, task management, and plugin development",
+    "Defuddle web content extraction for clean markdown from any URL",
+    "Compatible with Claude Code, Codex, and OpenCode via the Agent Skills specification",
+    "Installation via marketplace, npx skills, or manual setup"
+  ],
+  "publicApiSurface": [
+    "skills/obsidian-markdown — SKILL.md for OFM authoring",
+    "skills/obsidian-bases — SKILL.md for .base file creation",
+    "skills/obsidian-cli — SKILL.md for CLI vault interactions",
+    "skills/json-canvas — SKILL.md for .canvas file authoring",
+    "skills/defuddle — SKILL.md for web content extraction",
+    "obsidian CLI commands: read, create, append, search, daily:*, property:set, tasks, tags, backlinks, plugin:reload, dev:errors, dev:screenshot, dev:dom, eval",
+    "Bases filter syntax: and/or/not operators, file.hasTag(), file.inFolder(), file.hasLink()",
+    "Bases formula functions: date(), now(), today(), if(), duration(), file(), link(), min(), max()",
+    "JSON Canvas node types: text, file, link, group",
+    "JSON Canvas edge attributes: fromNode, toNode, fromSide, toSide, fromEnd, toEnd, label, color",
+    "Defuddle CLI: defuddle parse <url> --md"
+  ]
+}

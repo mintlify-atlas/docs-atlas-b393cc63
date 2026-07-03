@@ -1,0 +1,259 @@
+---
+title: "Obsidian Bases Functions Reference: All Built-In Functions"
+sidebarTitle: "Bases Functions"
+description: "Complete reference for all built-in Obsidian Bases functions organized by type: global, date, string, number, list, file, link, object, and regexp."
+---
+
+Obsidian Bases provides a rich set of built-in functions that can be called inside formula expressions and filter strings. Functions are organized by the type they operate on — global functions are called standalone, while type-specific functions are called as methods on a value using dot notation (e.g. `file.ctime.format("YYYY-MM-DD")` or `file.tags.contains("project")`). This page documents every built-in function available, organized by type.
+
+## Global Functions
+
+Global functions are called directly by name without a receiver object. They are available everywhere an expression is valid — in `formulas:`, in filter strings, and in summary expressions.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `date()` | `date(string): date` | Parse a string to a date. Format: `YYYY-MM-DD HH:mm:ss` |
+| `duration()` | `duration(string): duration` | Parse a duration string (e.g. `"1d"`, `"2 weeks"`) |
+| `now()` | `now(): date` | Current date and time |
+| `today()` | `today(): date` | Current date with time set to `00:00:00` |
+| `if()` | `if(condition, trueResult, falseResult?)` | Conditional expression; `falseResult` defaults to empty |
+| `min()` | `min(n1, n2, ...): number` | Returns the smallest of the supplied numbers |
+| `max()` | `max(n1, n2, ...): number` | Returns the largest of the supplied numbers |
+| `number()` | `number(any): number` | Convert a value to a number |
+| `link()` | `link(path, display?): Link` | Create a link from a path, with optional display text |
+| `list()` | `list(element): List` | Wrap a value in a list if it is not already one |
+| `file()` | `file(path): file` | Get a file object for the given vault path |
+| `image()` | `image(path): image` | Create an image value for rendering |
+| `icon()` | `icon(name): icon` | Reference a Lucide icon by name |
+| `html()` | `html(string): html` | Render a string as raw HTML |
+| `escapeHTML()` | `escapeHTML(string): string` | Escape HTML special characters in a string |
+
+## Any Type Functions
+
+These functions are available on any value, regardless of its type.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `isTruthy()` | `any.isTruthy(): boolean` | Coerce the value to a boolean |
+| `isType()` | `any.isType(type): boolean` | Check whether the value is of the specified type |
+| `toString()` | `any.toString(): string` | Convert the value to a string |
+
+## Date Functions
+
+Date values expose both **fields** (accessed with dot notation, no parentheses) and **functions** (called with parentheses).
+
+**Date fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date.year` | Number | Four-digit year |
+| `date.month` | Number | Month (1–12) |
+| `date.day` | Number | Day of the month (1–31) |
+| `date.hour` | Number | Hour (0–23) |
+| `date.minute` | Number | Minute (0–59) |
+| `date.second` | Number | Second (0–59) |
+| `date.millisecond` | Number | Millisecond (0–999) |
+
+**Date functions:**
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `date()` | `date.date(): date` | Strip the time portion, returning midnight on that date |
+| `format()` | `date.format(string): string` | Format using a Moment.js pattern (e.g. `"YYYY-MM-DD"`, `"dddd"`) |
+| `time()` | `date.time(): string` | Get the time portion as a string |
+| `relative()` | `date.relative(): string` | Human-readable relative time (e.g. "3 days ago") |
+| `isEmpty()` | `date.isEmpty(): boolean` | Always returns `false` for date values |
+
+## Duration Type
+
+A Duration is returned when you subtract two dates. It has its own set of numeric fields and does **not** share the numeric functions available on plain numbers.
+
+**Duration fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `duration.days` | Number | Total days in the duration |
+| `duration.hours` | Number | Total hours in the duration |
+| `duration.minutes` | Number | Total minutes in the duration |
+| `duration.seconds` | Number | Total seconds in the duration |
+| `duration.milliseconds` | Number | Total milliseconds in the duration |
+
+<Warning>
+  Duration does **not** support `.round()`, `.floor()`, or `.ceil()` directly. You must first access a numeric field (such as `.days`), and then call number functions on the resulting number.
+
+  ```yaml
+  # ✅ CORRECT — access .days first, then round
+  "(now() - file.ctime).days.round(0)"
+
+  # ✅ CORRECT — access .hours first
+  "(now() - file.ctime).hours.round(0)"
+
+  # ❌ WRONG — Duration does not support .round() directly
+  "(now() - file.ctime).round(0)"
+
+  # ❌ WRONG — Duration does not support division
+  "((date(due) - today()) / 86400000).round(0)"
+  ```
+</Warning>
+
+## Date Arithmetic
+
+Dates support addition and subtraction of duration strings. Subtracting two dates returns a Duration (see above).
+
+```yaml
+# Add a duration string to a date
+"date + \"1M\""           # Add 1 month
+"date - \"2h\""           # Subtract 2 hours
+"now() + \"1 day\""       # Tomorrow
+"today() + \"7d\""        # A week from today
+
+# Subtract dates — returns Duration type
+"now() - file.ctime"                    # Returns Duration
+"(now() - file.ctime).days"             # Get days as number
+"(now() - file.ctime).hours"            # Get hours as number
+
+# Complex duration arithmetic
+"now() + (duration('1d') * 2)"
+```
+
+**Duration unit abbreviations accepted in strings:**
+
+| Unit | Abbreviations |
+|------|--------------|
+| Years | `y`, `year`, `years` |
+| Months | `M`, `month`, `months` |
+| Weeks | `w`, `week`, `weeks` |
+| Days | `d`, `day`, `days` |
+| Hours | `h`, `hour`, `hours` |
+| Minutes | `m`, `minute`, `minutes` |
+| Seconds | `s`, `second`, `seconds` |
+
+## String Functions
+
+String values expose a `length` field and a suite of method functions.
+
+**String field:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `string.length` | Number | Number of characters in the string |
+
+**String functions:**
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `contains()` | `string.contains(value): boolean` | Check whether the string contains a substring |
+| `containsAll()` | `string.containsAll(...values): boolean` | Check whether all substrings are present |
+| `containsAny()` | `string.containsAny(...values): boolean` | Check whether any substring is present |
+| `startsWith()` | `string.startsWith(query): boolean` | Check whether the string starts with the query |
+| `endsWith()` | `string.endsWith(query): boolean` | Check whether the string ends with the query |
+| `isEmpty()` | `string.isEmpty(): boolean` | Returns `true` if the string is empty or not present |
+| `lower()` | `string.lower(): string` | Convert to lowercase |
+| `title()` | `string.title(): string` | Convert to Title Case |
+| `trim()` | `string.trim(): string` | Remove leading and trailing whitespace |
+| `replace()` | `string.replace(pattern, replacement): string` | Replace a pattern with a replacement string |
+| `repeat()` | `string.repeat(count): string` | Repeat the string a given number of times |
+| `reverse()` | `string.reverse(): string` | Reverse the characters in the string |
+| `slice()` | `string.slice(start, end?): string` | Extract a substring by character index |
+| `split()` | `string.split(separator, n?): list` | Split the string into a list on a separator |
+
+## Number Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `abs()` | `number.abs(): number` | Absolute value |
+| `ceil()` | `number.ceil(): number` | Round up to the nearest integer |
+| `floor()` | `number.floor(): number` | Round down to the nearest integer |
+| `round()` | `number.round(digits?): number` | Round to the specified number of decimal digits |
+| `toFixed()` | `number.toFixed(precision): string` | Format in fixed-point notation as a string |
+| `isEmpty()` | `number.isEmpty(): boolean` | Returns `true` if the number is not present |
+
+## List Functions
+
+List values expose a `length` field and a comprehensive set of method functions for querying and transforming lists.
+
+**List field:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `list.length` | Number | Number of elements in the list |
+
+**List functions:**
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `contains()` | `list.contains(value): boolean` | Check whether the list contains the value |
+| `containsAll()` | `list.containsAll(...values): boolean` | Check whether all values are in the list |
+| `containsAny()` | `list.containsAny(...values): boolean` | Check whether any value is in the list |
+| `filter()` | `list.filter(expression): list` | Filter elements by a boolean expression |
+| `map()` | `list.map(expression): list` | Transform each element with an expression |
+| `reduce()` | `list.reduce(expression, initial): any` | Reduce the list to a single value |
+| `flat()` | `list.flat(): list` | Flatten a nested list of lists into a single list |
+| `join()` | `list.join(separator): string` | Join all elements into a string with a separator |
+| `reverse()` | `list.reverse(): list` | Reverse the order of elements |
+| `slice()` | `list.slice(start, end?): list` | Extract a sub-list by index |
+| `sort()` | `list.sort(): list` | Sort elements in ascending order |
+| `unique()` | `list.unique(): list` | Remove duplicate elements |
+| `isEmpty()` | `list.isEmpty(): boolean` | Returns `true` if the list has no elements |
+
+<Note>
+  The `list.filter()`, `list.map()`, and `list.reduce()` functions use the special iteration variables `value` (the current element) and `index` (the zero-based position) inside the expression. `list.reduce()` additionally exposes `acc` for the accumulator.
+
+  ```yaml
+  # Filter to tags that start with "project/"
+  'file.tags.filter(value.startsWith("project/"))'
+
+  # Map to uppercase
+  'file.tags.map(value.title())'
+
+  # Reduce to a comma-separated string
+  'file.tags.reduce(acc + ", " + value, "")'
+  ```
+</Note>
+
+## File Functions
+
+These functions are called as methods on a `file` object — either the implicit `file` built-in for the current note, or a file object retrieved with the global `file()` function.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `asLink()` | `file.asLink(display?): Link` | Convert the file to a link, with optional display text |
+| `hasLink()` | `file.hasLink(otherFile): boolean` | Returns `true` if the file contains a link to the specified file |
+| `hasTag()` | `file.hasTag(...tags): boolean` | Returns `true` if the file has any of the specified tags |
+| `hasProperty()` | `file.hasProperty(name): boolean` | Returns `true` if the file's frontmatter contains the property |
+| `inFolder()` | `file.inFolder(folder): boolean` | Returns `true` if the file is in the specified folder or any subfolder |
+
+## Link Functions
+
+These functions are called on a `Link` value (created by `link()` or `file.asLink()`).
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `asFile()` | `link.asFile(): file` | Get the file object that the link points to |
+| `linksTo()` | `link.linksTo(file): boolean` | Returns `true` if the link points to the specified file |
+
+## Object Functions
+
+These functions are called on object values, such as `file.properties` (all frontmatter as an object).
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `isEmpty()` | `object.isEmpty(): boolean` | Returns `true` if the object has no properties |
+| `keys()` | `object.keys(): list` | Returns a list of the object's property names |
+| `values()` | `object.values(): list` | Returns a list of the object's property values |
+
+## Regular Expression Functions
+
+Regular expressions can be written inline using JavaScript regex literal syntax (`/pattern/`) and matched against strings.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `matches()` | `regexp.matches(string): boolean` | Returns `true` if the regex matches the string |
+
+```yaml
+# Match only files whose basename is a date (YYYY-MM-DD)
+filters: '/^\d{4}-\d{2}-\d{2}$/.matches(file.basename)'
+
+# Match files whose name contains a four-digit year
+filters: '/\d{4}/.matches(file.name)'
+```

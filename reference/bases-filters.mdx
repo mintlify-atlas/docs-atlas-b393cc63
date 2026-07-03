@@ -1,0 +1,153 @@
+---
+title: "Obsidian Bases Filter Syntax: And, Or, Not, and Operators"
+sidebarTitle: "Bases Filters"
+description: "Reference for Obsidian Bases filter syntax with single filters, AND/OR/NOT compound filters, comparison operators, and file function filters."
+---
+
+Filters narrow down which notes appear in a base by evaluating an expression against each note's properties and metadata. Filters can be applied **globally** at the top level of the `.base` file — in which case they restrict every view — or **per-view** inside a specific view's `filters:` key, in which case they apply only to that view. Both locations accept the same filter syntax.
+
+<Tip>
+  Filters use string expressions, so always quote string values with double quotes inside single-quoted expressions. For example: `'status == "done"'`. The outer single quotes are YAML quoting; the inner double quotes are part of the expression string.
+</Tip>
+
+## Single Filter
+
+The simplest filter is a plain string expression. When the value is a single expression, write it directly as a string:
+
+```yaml
+filters: 'status == "done"'
+```
+
+This form works at the top level and inside any view's `filters:` key.
+
+## AND Filters
+
+Use `and:` when all conditions must be true. Supply a list of filter expressions or nested filter objects:
+
+```yaml
+filters:
+  and:
+    - 'status == "done"'
+    - 'priority > 3'
+```
+
+Every item in the list must evaluate to true for a note to be included.
+
+## OR Filters
+
+Use `or:` when any one condition being true is sufficient:
+
+```yaml
+filters:
+  or:
+    - 'file.hasTag("book")'
+    - 'file.hasTag("article")'
+```
+
+A note is included if at least one item in the list evaluates to true.
+
+## NOT Filters
+
+Use `not:` to exclude notes that match any of the listed conditions:
+
+```yaml
+filters:
+  not:
+    - 'file.hasTag("archived")'
+```
+
+A note is included only if none of the listed conditions evaluate to true.
+
+## Nested Filters
+
+Filter objects can be nested arbitrarily. An item inside an `and:`, `or:`, or `not:` list can itself be a filter object with its own key. This lets you express complex boolean logic:
+
+```yaml
+filters:
+  or:
+    - file.hasTag("tag")
+    - and:
+        - file.hasTag("book")
+        - file.hasLink("Textbook")
+    - not:
+        - file.hasTag("book")
+        - file.inFolder("Required Reading")
+```
+
+In this example a note matches if it has the tag `tag`, OR if it has both `book` and links to `Textbook`, OR if it has neither the `book` tag nor is located in `Required Reading`.
+
+<Warning>
+  Each filter object must have exactly **one** key — either `and`, `or`, or `not`. Placing multiple keys in the same object (e.g. `and:` and `or:` at the same level) is not supported and will produce unexpected results.
+</Warning>
+
+## Filter Operators
+
+The following operators are available inside filter expressions:
+
+| Operator | Description |
+|----------|-------------|
+| `==` | Equals |
+| `!=` | Not equal |
+| `>` | Greater than |
+| `<` | Less than |
+| `>=` | Greater than or equal |
+| `<=` | Less than or equal |
+| `&&` | Logical AND (within a single expression string) |
+| `\|\|` | Logical OR (within a single expression string) |
+| `!` | Logical NOT (within a single expression string) |
+
+Operators `&&`, `||`, and `!` can be used inside a single filter string for simple inline boolean logic. For multi-condition logic it is generally clearer to use the `and:` / `or:` / `not:` object syntax.
+
+## File Filter Functions
+
+The following functions are available on the built-in `file` object and are especially useful in filters for scoping a base to a particular tag, folder, or link relationship.
+
+### `file.hasTag()`
+
+Returns `true` if the file has any of the specified tags. Accepts one or more tag arguments.
+
+```yaml
+# Single tag
+filters: 'file.hasTag("project")'
+
+# Match either tag (using or:)
+filters:
+  or:
+    - 'file.hasTag("book")'
+    - 'file.hasTag("article")'
+```
+
+### `file.inFolder()`
+
+Returns `true` if the file is located inside the specified folder or any of its subfolders.
+
+```yaml
+filters: 'file.inFolder("Daily Notes")'
+```
+
+### `file.hasLink()`
+
+Returns `true` if the file contains an internal link to the specified file.
+
+```yaml
+filters: 'file.hasLink("Textbook")'
+```
+
+Useful for finding all notes that reference a particular note, person, or project.
+
+### `file.hasProperty()`
+
+Returns `true` if the file's frontmatter contains the specified property (regardless of its value).
+
+```yaml
+# Only show notes that have a "due" property
+filters: 'file.hasProperty("due")'
+
+# Combine with other filters
+filters:
+  and:
+    - 'file.hasProperty("due")'
+    - 'file.hasTag("task")'
+```
+
+This is useful for filtering out notes that would cause formula errors because a required property is missing, complementing the use of `if()` guards in formulas.

@@ -1,0 +1,75 @@
+---
+title: "Obsidian Agent Skills: Teach Your Agent Obsidian"
+sidebarTitle: "Introduction"
+description: "Obsidian Agent Skills is a set of SKILL.md files that give AI coding agents deep knowledge of Obsidian Markdown, Bases, Canvas, and the Obsidian CLI."
+---
+
+Obsidian Agent Skills is a collection of `SKILL.md` files that give AI coding assistants deep, structured knowledge of Obsidian-specific file formats and tooling. Each skill file is auto-discovered by compatible agents at startup — no manual prompting, no copy-pasting documentation into your context window. Once installed, your agent understands Obsidian Flavored Markdown, Bases, Canvas, the Obsidian CLI, and more, right out of the box.
+
+## What Are Agent Skills?
+
+Agent Skills are structured knowledge files that follow the [Agent Skills specification](https://agentskills.io/specification). Each skill is a `SKILL.md` file that describes a domain-specific syntax, API, or tool in a format that AI coding agents can load and act on automatically.
+
+Without skills, you would need to manually paste documentation or write lengthy system prompts every time you want your agent to understand something like Obsidian wikilinks or `.base` file syntax. With skills, that knowledge is bundled once and loaded on demand — the agent reads the skill file when it detects a relevant file type or user intent, and applies the correct syntax without further instruction.
+
+<Tip>
+  Skills follow open formats (Markdown, YAML, and JSON), making them easy to read, edit, and contribute to. You can inspect any `SKILL.md` file directly to understand exactly what knowledge your agent has access to.
+</Tip>
+
+## Included Skills
+
+Obsidian Agent Skills ships five skills covering the core Obsidian ecosystem:
+
+<CardGroup cols={2}>
+  <Card
+    title="obsidian-markdown"
+    icon="file-lines"
+    href="/skills/obsidian-markdown"
+  >
+    Create and edit Obsidian Flavored Markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific syntax.
+  </Card>
+  <Card
+    title="obsidian-bases"
+    icon="table"
+    href="/skills/obsidian-bases"
+  >
+    Create and edit Obsidian Bases (`.base` files) with views, filters, formulas, and summaries.
+  </Card>
+  <Card
+    title="obsidian-cli"
+    icon="terminal"
+    href="/skills/obsidian-cli"
+  >
+    Interact with Obsidian vaults via the Obsidian CLI, including plugin and theme development workflows.
+  </Card>
+  <Card
+    title="json-canvas"
+    icon="diagram-project"
+    href="/skills/json-canvas"
+  >
+    Create and edit JSON Canvas (`.canvas`) files with nodes, edges, groups, and connections.
+  </Card>
+  <Card
+    title="defuddle"
+    icon="broom"
+    href="/skills/defuddle"
+  >
+    Extract clean Markdown from web pages using Defuddle, removing clutter to save tokens.
+  </Card>
+</CardGroup>
+
+## Compatible Agents
+
+Obsidian Agent Skills works with any agent that implements the [Agent Skills specification](https://agentskills.io/specification). The following agents are currently supported:
+
+- **Claude Code** — Anthropic's agentic coding tool. Skills are installed via the `/plugin` marketplace or added manually to the `/.claude` folder in your vault root.
+- **Codex** — OpenAI's CLI coding agent. Skills are copied into `~/.codex/skills` and auto-discovered on startup.
+- **OpenCode** — An open-source, terminal-based coding agent. Skills are cloned into `~/.opencode/skills/` and discovered automatically without any config changes.
+
+<Note>
+  As the Agent Skills specification matures, additional agents are expected to add support. Any spec-compatible agent will work with these skill files without modification.
+</Note>
+
+## Open Formats
+
+All skills in this collection are written in plain Markdown with YAML frontmatter — the same open, human-readable formats used by Obsidian itself. There is no proprietary packaging, no binary blobs, and no lock-in to a single agent platform. You can read, edit, and extend any skill file with a text editor. Contributions and improvements are welcome via the [obsidian-skills repository](https://github.com/kepano/obsidian-skills).
